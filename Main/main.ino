@@ -10,8 +10,8 @@ const int servoPin = 18;
 const int potPin = 4;
 int valorPot = 0;
 
-const float limiteInclinacao = 20.0; // graus
-const float limiteDeformacao = 70.0;
+const float limiteInclinacao = 4.0; // graus
+const float limiteDeformacao = 50.0;
 
 float anguloX;
 float deformacao;
