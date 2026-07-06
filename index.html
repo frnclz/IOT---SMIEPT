@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard IoT</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+
+  <style>
+    body {
+      font-family: Georgia, "Times New Roman", Times, serif;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #d5e5f4, #a6e0ff);
+    }
+
+    .title,
+    .subtitle {
+      color: #2c3e50;
+    }
+
+    #alerta-ponteInterditada {
+      font-weight: bold;
+      text-align: center;
+      animation: piscar 1s infinite;
+      border-radius: 12px;
+    }
+
+    @keyframes piscar {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      color: #2c3e50;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .sensor-title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .sensor-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .ok {
+      color: #2ecc71;
+    }
+
+    .alerta {
+      color: #e74c3c;
+    }
+
+    .box {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    #status {
+      font-weight: bold;
+    }
+
+    .status-ok {
+      color: #2ecc71;
+    }
+
+    .status-erro {
+      color: #e74c3c;
+    }
+
+    .container {
+      max-width: 1400px;
+    }
+
+    .sensor-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 180px;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title has-text-left">
+          Sistema de Monitoramento da Integridade Estrutural de Pontes e Trapiches
+        </h1>
+
+        <h2 class="subtitle has-text-left mt-3 mb-6">Franciele Alves</h2>
+        <!-- Área de exibição do status da conexão MQTT -->
+        <div class="box mb-6" style="max-width: 450px; margin-left: 0;">
+          <h2 class="title is-5 has-text-centered">Status do Sistema</h2>
+
+          <p id="status" class="has-text-centered status-erro">
+            Conectando...
+          </p>
+        </div>
+
+        <!-- Cards responsáveis por exibir os dados dos sensores -->
+        <div class="box">
+          <p>Ponte 1</p>
+          <div class="columns">
+            <div class="column is-12-mobile is-6-tablet is-4-desktop is-3-widescreen">
+              <div class="card sensor-card has-text-centered p-5">
+                <div class="sensor-title">Pilar 1</div>
+                <div class="sensor-title">Inclinação</div>
+                <div id="pilar1" class="sensor-value">-- °</div>
+              </div>
+            </div>
+
+            <div class="column is-12-mobile is-6-tablet is-4-desktop is-3-widescreen">
+              <div class="card sensor-card has-text-centered p-5">
+                <div class="sensor-title">Pilar 3</div>
+                <div class="sensor-title">Inclinação</div>
+                <div id="pilar2" class="sensor-value">-- °</div>
+              </div>
+            </div>
+
+            <!-- Cards: Status da Ponte + Cancela -->
+            <div class="column">
+              <div class="is-flex" style="flex-direction: column; height: 100%; gap: 0.75rem;">
+                <div class="card has-text-centered p-3"
+                  style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
+                  <div class="sensor-title">Status da Ponte</div>
+                  <div id="status-ponte" class="sensor-value">445666</div>
+                </div>
+                <div class="card has-text-centered p-3"
+                  style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
+                  <div class="sensor-title">Cancela</div>
+                  <div id="status-cancela" class="sensor-value"></div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-flex is-align-items-center is-justify-content-center">
+              <button id="btn-alerta" class="button is-danger">Enviar alerta de ponte interditada</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerta exibido quando a umidade ultrapassa o limite configurado -->
+      <div id="alerta-movimentacao" class="notification is-danger has-text-centered mt-4" style="display: none">
+        Alerta: Ponte com movimentação estranha!
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Biblioteca MQTT para comunicação em tempo real -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+
+  <script>
+    // Cria um cliente MQTT WebSocket para comunicação com o broker
+    const client = new Paho.MQTT.Client(
+      "broker.emqx.io",
+      8084,
+      "web_" + Math.random(),
+    );
+
+    // Executado sempre que uma nova mensagem MQTT é recebida
+    const TOPICO_SENSORES = "fran/sensores";
+    const TOPICO_ALERTA = "fran/alerta";
+
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    client.onMessageArrived = function (message) {
+      // Alerta manual (botão)
+      if (message.destinationName === TOPICO_ALERTA) {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Alerta: Ponte Interditada", {
+            body: "Uma ponte foi marcada como interditada. Evite a rota.",
+          });
+        }
+        return;
+      }
+
+      // Dados dos sensores (automático)
+      const data = JSON.parse(message.payloadString);
+
+      document.getElementById("pilar1").textContent = data.angulo1.toFixed(1) + " °";
+      document.getElementById("pilar2").textContent = data.angulo2.toFixed(1) + " °";
+
+      const statusPonte = document.getElementById("status-ponte");
+      const statusCancela = document.getElementById("status-cancela");
+      const alertaMovimentacao = document.getElementById("alerta-movimentacao");
+
+      if (data.risco) {
+        statusPonte.textContent = "Risco";
+        statusPonte.className = "sensor-value alerta";
+        alertaMovimentacao.style.display = "block";
+      } else {
+        statusPonte.textContent = "Normal";
+        statusPonte.className = "sensor-value ok";
+        alertaMovimentacao.style.display = "none";
+      }
+
+      statusCancela.textContent = data.cancela === "fechada" ? "Fechada" : "Aberta";
+      statusCancela.className = data.cancela === "fechada" ? "sensor-value alerta" : "sensor-value ok";
+    };
+
+    function conectar() {
+      client.connect({
+        useSSL: true,
+        onSuccess: () => {
+          const status = document.getElementById("status");
+          status.textContent = "Conectado";
+          status.className = "has-text-centered status-ok";
+
+          client.subscribe(TOPICO_SENSORES);
+          client.subscribe(TOPICO_ALERTA);
+        },
+        onFailure: () => {
+          const status = document.getElementById("status");
+          status.textContent = "Reconectando...";
+          status.className = "has-text-centered status-erro";
+          setTimeout(conectar, 2000);
+        },
+      });
+    }
+    conectar();
+
+    document.getElementById("btn-alerta").addEventListener("click", () => {
+      if (!("Notification" in window)) {
+        alert("Seu navegador não suporta notificações. O alerta será enviado, mas você não vai vê-lo aqui.");
+      } else if (Notification.permission === "denied") {
+        alert("As notificações estão bloqueadas no seu navegador. Ative-as nas configurações do site para receber este alerta.");
+      } else if (Notification.permission === "default") {
+        alert("Ative as notificações do navegador para receber este alerta.");
+        Notification.requestPermission();
+      }
+
+      const mensagem = new Paho.MQTT.Message("interditada");
+      mensagem.destinationName = TOPICO_ALERTA;
+      client.send(mensagem);
+    });
+  </script>
+</body>
+
+</html>
