@@ -6,8 +6,8 @@
 #include <PubSubClient.h>
 
 // ===== WiFi =====
-const char* ssid = "SEU_WIFI";
-const char* senha = "SUA_SENHA";
+const char* ssid = "SEU WIFI";
+const char* senha = "SUA SENHA";
 
 // ===== MQTT =====
 const char* mqtt_broker = "broker.emqx.io";
@@ -28,6 +28,9 @@ const float limiteInclinacao = 4.0; // graus
 
 unsigned long ultimoEnvio = 0;
 const unsigned long intervaloEnvio = 1000; // ms
+
+float offset1 = 0;
+float offset2 = 0;
 
 void conectarWiFi() {
   Serial.print("Conectando ao WiFi");
@@ -60,12 +63,12 @@ void setup() {
 
   Wire.begin();
 
-  if (!mpu1.begin()) {
+  if (!mpu1.begin(0x68)) {
   Serial.println("Erro ao iniciar MPU6050 1");
   while (1);
 }
 
-if (!mpu2.begin()) {
+if (!mpu2.begin(0x69)) {
   Serial.println("Erro ao iniciar MPU6050 2");
   while (1);
 }
@@ -80,6 +83,13 @@ if (!mpu2.begin()) {
   mpu2.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu2.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
+  sensors_event_t a1, g1, t1;
+  sensors_event_t a2, g2, t2;
+  mpu1.getEvent(&a1, &g1, &t1);
+  mpu2.getEvent(&a2, &g2, &t2);
+
+  offset1 = atan2(a1.acceleration.x, a1.acceleration.y) * 180.0 / PI;
+  offset2 = atan2(a2.acceleration.x, a2.acceleration.y) * 180.0 / PI;
   meuServo.setPeriodHertz(50);
   meuServo.attach(servoPin, 500, 2400);
 
@@ -104,22 +114,22 @@ void loop() {
 
   sensors_event_t a1, g1, t1;
   sensors_event_t a2, g2, t2;
-  mpu1.getEvent(&a1,&g1,&t1);
-  mpu2.getEvent(&a2,&g2,&t2);
+
+  mpu1.getEvent(&a1, &g1, &t1);
+  mpu2.getEvent(&a2, &g2, &t2);
 
   /// Calcula inclinação da ponte
-  float angulo1 = atan2(a1.acceleration.x,a1.acceleration.z)*180/PI;
-  float angulo2 = atan2(a2.acceleration.x,a2.acceleration.z)*180/PI;
-
-
+  float angulo1 = atan2(a1.acceleration.x, a1.acceleration.y) * 180.0 / PI - offset1;
+  float angulo2 = atan2(a2.acceleration.x, a2.acceleration.y) * 180.0 / PI - offset2;
+  
   // ===== DECISÃO =====
 bool risco = abs(angulo1) > limiteInclinacao || abs(angulo2) > limiteInclinacao;
   if (risco) {
     // Fecha a cancela
-    meuServo.write(0);
+    meuServo.write(90);
   } else {
     // Abre a cancela
-    meuServo.write(90);
+    meuServo.write(180);
   }
 // ===== MONITOR SERIAL =====
   Serial.println("Sensor Estrutural – Pilar 1");
