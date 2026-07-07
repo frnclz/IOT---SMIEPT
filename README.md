@@ -88,6 +88,12 @@ Após a inicialização:
 
 Acesse o [circuito no Wokwi](https://wokwi.com/projects/466573165787430913) para visualizar a simulação do projeto.
 
+## Dashboard
+<img width="1847" height="868" alt="image" src="https://github.com/user-attachments/assets/4c92637d-fc1f-4507-a23f-a6d0f9b28c49" />
+<img width="1847" height="862" alt="image" src="https://github.com/user-attachments/assets/de60b9bf-e8c5-46ee-a419-edad134b415c" />
+
+Acesse o [dashboard do projeto](https://iot-smiept.vercel.app/) para visualizar em tempo real.
+
 ## Implementações Realizadas
 
 Até o presente momento, foram desenvolvidas e testadas as seguintes funcionalidades do sistema:
@@ -97,10 +103,12 @@ Até o presente momento, foram desenvolvidas e testadas as seguintes funcionalid
 * Sistema de Bloqueio de Segurança
 * Processamento Local dos Dados
 
-## Aplicações Futuras
-
+## Implementações Realizadas - v2
 * Integração do protocolo MQTT para comunicação.
 * Envio de alertas remotos em situações de risco.
 * Desenvolvimento de dashboard para monitoramento em tempo real.
+  
+## Aplicações Futuras
 * Armazenamento histórico dos dados coletados.
-* Substituição do potenciômetro por extensômetro real utilizando módulo HX711.
+* Melhorar a função do botão de alerta.
+* Implementação do extensômetro junto ao módulo HX711.
