@@ -103,6 +103,11 @@
       justify-content: center;
       min-height: 180px;
     }
+
+    #btn-alerta:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
@@ -160,13 +165,13 @@
               </div>
             </div>
             <div class="column is-flex is-align-items-center is-justify-content-center">
-              <button id="btn-alerta" class="button is-danger">Enviar alerta de ponte interditada</button>
+              <button id="btn-alerta" class="button is-danger" disabled>Enviar alerta de ponte interditada</button>
             </div>
           </div>
           <!-- Alerta exibido quando a umidade ultrapassa o limite configurado -->
-      <div id="alerta-movimentacao" class="notification is-danger has-text-centered mt-4" style="display: none">
-        Alerta: Ponte com movimentação estranha!
-      </div>
+          <div id="alerta-movimentacao" class="notification is-danger has-text-centered mt-4" style="display: none">
+            Alerta: Ponte com movimentação estranha!
+          </div>
         </div>
       </div>
     </div>
@@ -213,14 +218,22 @@
       const statusCancela = document.getElementById("status-cancela");
       const alertaMovimentacao = document.getElementById("alerta-movimentacao");
 
+      const botaoAlerta = document.getElementById("btn-alerta");
+
       if (data.risco) {
         statusPonte.textContent = "Risco";
         statusPonte.className = "sensor-value alerta";
         alertaMovimentacao.style.display = "block";
+
+        // Habilita o botão
+        botaoAlerta.disabled = false;
       } else {
         statusPonte.textContent = "Normal";
         statusPonte.className = "sensor-value ok";
         alertaMovimentacao.style.display = "none";
+
+        // Desabilita o botão
+        botaoAlerta.disabled = true;
       }
 
       statusCancela.textContent = data.cancela === "fechada" ? "Fechada" : "Aberta";
