@@ -18,7 +18,7 @@ client.onMessageArrived = function (message) {
   if (message.destinationName === TOPICO_ALERTA) {
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Alerta: Ponte Interditada", {
-        body: "Uma ponte foi marcada como interditada. Evite a rota.",
+        body: "A ponte 1 foi marcada como interditada. Evite a rota.",
       });
     }
     return;
