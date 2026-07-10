@@ -31,22 +31,24 @@ client.onMessageArrived = function (message) {
   }
 
   const data = JSON.parse(message.payloadString);
-
   document.getElementById("pilar1").textContent = data.angulo1.toFixed(1) + " °";
   document.getElementById("pilar2").textContent = data.angulo2.toFixed(1) + " °";
 
   const statusPonte = document.getElementById("status-ponte");
   const statusCancela = document.getElementById("status-cancela");
   const alertaMovimentacao = document.getElementById("alerta-movimentacao");
+  const botaoAlerta = document.getElementById("btn-alerta");
 
   if (data.risco) {
     statusPonte.textContent = "Risco";
     statusPonte.className = "sensor-value alerta";
     alertaMovimentacao.style.display = "block";
+    botaoAlerta.disabled = false;
   } else {
     statusPonte.textContent = "Normal";
     statusPonte.className = "sensor-value ok";
     alertaMovimentacao.style.display = "none";
+    botaoAlerta.disabled = true;
   }
 
   statusCancela.textContent = data.cancela === "fechada" ? "Fechada" : "Aberta";
