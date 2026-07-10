@@ -9,7 +9,7 @@ const TOPICO_ALERTA = "fran/alerta";
 
 // Configuração do CallMeBot (WhatsApp)
 const WHATSAPP_TELEFONE = import.meta.env.WTEL;
-const WHATSAPP_APIKEY = "SUA_APIKEY_AQUI";
+const WHATSAPP_APIKEY = import.meta.env.WAPIKEY;
 
 if ("Notification" in window && Notification.permission === "default") {
   Notification.requestPermission();
