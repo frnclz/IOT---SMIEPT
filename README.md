@@ -84,7 +84,7 @@ Após a inicialização:
 
 ## Circuito
 
-<img width="767" height="670" alt="image" src="https://github.com/user-attachments/assets/c5439391-b6a6-41ea-bc39-34ec40b5ce36" />
+<img width="928" height="622" alt="image" src="https://github.com/user-attachments/assets/a5519927-8864-441a-b6e0-d549c45926d5" />
 
 Acesse o [circuito no Wokwi](https://wokwi.com/projects/466573165787430913) para visualizar a simulação do projeto.
 
