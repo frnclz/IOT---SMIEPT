@@ -8,8 +8,6 @@ const TOPICO_SENSORES = "fran/sensores";
 const TOPICO_ALERTA = "fran/alerta";
 
 // Configuração do CallMeBot (WhatsApp)
-const WHATSAPP_TELEFONE = import.meta.env.WTEL;
-const WHATSAPP_APIKEY = import.meta.env.WAPIKEY;
 
 if ("Notification" in window && Notification.permission === "default") {
   Notification.requestPermission();
