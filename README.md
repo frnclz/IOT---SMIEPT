@@ -94,6 +94,13 @@ Acesse o [circuito no Wokwi](https://wokwi.com/projects/466573165787430913) para
 
 Acesse o [dashboard do projeto](https://iot-smiept.vercel.app/) para visualizar em tempo real.
 
+## Sistema Físico
+<img width="1600" height="1200" alt="image" src="https://github.com/user-attachments/assets/b89b1462-aabc-42f0-9cce-453f26adc9ae" />
+<img width="1600" height="1200" alt="image" src="https://github.com/user-attachments/assets/6ed1ca8b-57e0-4799-978a-211825acf89f" />
+
+## Vídeo do Funcionamneto do sistema
+[Vídeo](https://youtu.be/YEoYsussotE).
+
 ## Implementações Realizadas
 
 Até o presente momento, foram desenvolvidas e testadas as seguintes funcionalidades do sistema:
